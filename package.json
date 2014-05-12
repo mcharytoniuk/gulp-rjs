@@ -14,8 +14,11 @@
     },
     "dependencies": {
         "cruks-lib-config": "2.x",
-        "event-stream": "3.1.x",
-        "requirejs": "2.1.x"
+        "gulp-util": "2.x",
+        "mktemp": "0.3.x",
+        "requirejs": "2.1.x",
+        "rimraf": "2.2.x",
+        "through2": "0.x"
     },
     "devDependencies": {
         "chai": "1.9.x",

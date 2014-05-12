@@ -6,28 +6,72 @@
 
 "use strict";
 
-var es = require("event-stream"),
+var path = require("path"),
     fs = require("fs"),
-    path = require("path"),
-    requirejs = require("requirejs");
+    gutil = require("gulp-util"),
+    mktemp = require("mktemp"),
+    OptimizerSettings = require(path.join(__dirname, "/OptimizerSettings")),
+    PLUGIN_NAME = "gulp-r",
+    PluginError = gutil.PluginError,
+    requirejs = require("requirejs"),
+    rimraf = require("rimraf"),
+    through = require("through2");
 
 module.exports = function (options) {
-    return es.mapSync(function (file, cb) {
-        console.log(file);
-        return file;
+    var stream;
 
-        stream.write(file.contents, "", function () {
-            var name = path.basename(file.path).replace(path.extname(file.path), ""),
-                outPath = path.join(options.baseUrl, name + ".js");
+    try {
+        options = new OptimizerSettings(options);
+    } catch (e) {
+        throw new PluginError(PLUGIN_NAME, e.message);
+    }
 
-            if (!options.name) {
-                options.name = name;
+    stream = through.obj(function (file, enc, callback) {
+        var name = path.basename(file.path).replace(path.extname(file.path), ""),
+            that = this;
+
+        if (file.isNull()) {
+            return callback();
+        }
+
+        // if (file.isBuffer()) {
+        //     file.contents = Buffer.concat([prefixText, file.contents]);
+        // }
+
+        // if (file.isStream()) {
+        //     file.contents = file.contents.pipe(optimize(options));
+        // }
+
+        mktemp.createDir("gulp-r-XXX.out", function (err, p) {
+            var out;
+
+            if (err) {
+                throw new PluginError(PLUGIN_NAME, err.message);
             }
-            if (!options.out) {
-                options.out = outPath;
-            }
 
-            requirejs.optimize(options);
+            p = path.resolve(p);
+            out = path.join(p, name);
+
+            requirejs.optimize({
+                "baseUrl": options.baseUrl,
+                "name": name,
+                "out": out,
+                "paths": options.paths
+            }, function () {
+                fs.readFile(out, function (err, content) {
+                    if (err) {
+                        throw new PluginError(PLUGIN_NAME, err.message);
+                    }
+
+                    file.content = content;
+
+                    that.push(file);
+
+                    rimraf(p, callback);
+                });
+            });
         });
     });
+
+    return stream;
 };
