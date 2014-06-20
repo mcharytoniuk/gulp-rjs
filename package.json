@@ -12,7 +12,8 @@
         "rjs"
     ],
     "name": "gulp-r",
-    "version": "1.0.2",
+    "description": "Gulp r.js (requirejs optimizer) plugin.",
+    "version": "1.0.4",
     "main": "smrt-gulp-r",
     "scripts": {
         "test": "gulp test"
