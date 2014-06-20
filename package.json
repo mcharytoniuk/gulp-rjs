@@ -6,8 +6,9 @@
     "contributors": [
         "Mateusz Charytoniuk <mateusz.charyotniuk@gmail.com>"
     ],
+    "keywords": ["gulpplugin", "requirejs", "rjs"],
     "name": "gulp-r",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "main": "gulp-r",
     "scripts": {
         "test": "gulp test"
