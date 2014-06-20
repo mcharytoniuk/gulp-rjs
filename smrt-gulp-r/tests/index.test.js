@@ -12,14 +12,14 @@ var assert = require("chai").assert,
     fs = require("fs"),
     path = require("path"),
     gulp = require("gulp"),
-    gulpr = require(path.join(global.paths.root, "/gulp-r")),
+    gulpr = require(path.join(global.paths.root, "/smrt-gulp-r")),
     mktemp = require("mktemp"),
     requirejs = require("requirejs"),
     rimraf = require("rimraf"),
     through = require("through2");
 
 describe("gulp-r/gulpr", function () {
-    var baseUrl = path.join(global.paths.root, "/gulp-r/fixtures/app/"),
+    var baseUrl = path.join(global.paths.root, "/smrt-gulp-r/fixtures/app/"),
         destUrl,
         mainUrl = path.join(baseUrl, "/main.js"),
         req = requirejs.config({
@@ -50,7 +50,7 @@ describe("gulp-r/gulpr", function () {
         var correct;
 
         before(function (done) {
-            var fxPath = path.join(global.paths.root, "/gulp-r/fixtures/out/correct");
+            var fxPath = path.join(global.paths.root, "/smrt-gulp-r/fixtures/out/correct");
 
             fs.readFile(fxPath, function (err, content) {
                 assert.ifError(err);

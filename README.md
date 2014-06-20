@@ -1,6 +1,6 @@
-# polacks-gulp-rjs
+# gulp-r
 
-First, install `polacks-gulp-rjs` as a development dependency:
+First, install `gulp-r` as a development dependency:
 
 ```shell
 npm install --save-dev gulp-r
