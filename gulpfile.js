@@ -12,8 +12,7 @@ var cached = require("gulp-cached"),
     gulp = require("gulp"),
     istanbul = require("gulp-istanbul"),
     mocha = require("gulp-mocha"),
-    path = require("path"),
-    plumber = require("gulp-plumber");
+    path = require("path");
 
 /*eslint no-sync: 0 */
 

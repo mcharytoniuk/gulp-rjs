@@ -62,28 +62,21 @@ describe("gulp-r/gulpr", function () {
         });
 
         it("minifies files with 'gulp'", function (done) {
-            var called = false,
-                options = {
-                    "baseUrl": baseUrl
-                };
+            var options = {
+                "baseUrl": baseUrl
+            };
 
             gulp.src(mainUrl)
                 .pipe(gulpr(options))
                 .pipe(through.obj(function (file, enc, callback) {
-                    called = true;
-
-                    assert.strictEqual(correct, file.content.toString(enc).trim());
+                    assert.strictEqual(correct, file.contents.toString(enc).trim());
 
                     this.push(file);
 
                     callback();
                 }))
                 .pipe(gulp.dest(destUrl))
-                .on("end", function () {
-                assert.ok(called);
-
-                done();
-            });
+                .on("end", done);
         });
     });
 });

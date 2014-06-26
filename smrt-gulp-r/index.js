@@ -58,12 +58,12 @@ module.exports = function (options) {
                 "out": out,
                 "paths": options.paths
             }, function () {
-                fs.readFile(out, function (err, content) {
+                fs.readFile(out, function (err, contents) {
                     if (err) {
                         throw new PluginError(PLUGIN_NAME, err.message);
                     }
 
-                    file.content = content;
+                    file.contents = contents;
 
                     that.push(file);
 
