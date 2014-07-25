@@ -13,17 +13,17 @@
     ],
     "name": "gulp-r",
     "description": "Gulp r.js (requirejs optimizer) plugin.",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "main": "smrt-gulp-r",
     "scripts": {
         "test": "gulp test"
     },
     "dependencies": {
+        "almond": "0.x",
         "cruks-lib-config": "2.x",
         "gulp-util": "2.x",
-        "mktemp": "0.3.x",
+        "q": "1.x",
         "requirejs": "2.1.x",
-        "rimraf": "2.2.x",
         "through2": "0.x"
     },
     "devDependencies": {
@@ -35,7 +35,10 @@
         "gulp-istanbul": "0.x",
         "gulp-mocha": "0.x",
         "gulp-plumber": "0.x",
-        "gulp-watch": "0.x"
+        "gulp-watch": "0.x",
+        "mktemp": "0.3.x",
+        "rimraf": "2.2.x",
+        "q-io": "1.x"
     },
     "repository": {
         "type": "git",

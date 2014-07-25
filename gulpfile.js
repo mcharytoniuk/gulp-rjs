@@ -1,11 +1,12 @@
 /**
- * @license Copyright (c) 2014, Cruks
+ * @license Copyright (c) 2014, smrtlabs
  * For licensing, see LICENSE
  */
 
 "use strict";
 
-var cached = require("gulp-cached"),
+var assert = require("chai").assert,
+    cached = require("gulp-cached"),
     esformatter = require("gulp-esformatter"),
     eslint = require("gulp-eslint"),
     fs = require("fs"),
@@ -16,70 +17,70 @@ var cached = require("gulp-cached"),
 
 /*eslint no-sync: 0 */
 
-global.configs = {
-    get "esformatter"() {
-        return JSON.parse(fs.readFileSync(global.paths.configs.esformatter));
-    },
-
-    get "eslintrc"() {
-        return JSON.parse(fs.readFileSync(global.paths.configs.eslintrc));
-    }
-};
-
 global.paths = {
-    get "all"() {
-        return [this.gulpfile].concat(this.libs.files)
-        .concat(this.tests.files);
-    },
     "configs": {
         "esformatter": path.join(__dirname, ".esformatter"),
         "eslintrc": path.join(__dirname, ".eslintrc")
     },
     "coverage": {
-        "root": path.join(__dirname, "/node_coverage")
+        "root": path.join(__dirname, "node_coverage")
     },
     "gulpfile": __filename,
     "libs": {
-        "files": [
-            path.join(__dirname, "/smrt-*/**/*.js"),
-            path.join(__dirname, "/smrt-*/*.js")
-        ]
+        "files": path.join(__dirname, "smrt-*/{*.js,tests/**/*.js}")
     },
     "tests": {
-        "files": path.join(__dirname, "/smrt-*/tests/*.test.js")
+        "files": path.join(__dirname, "smrt-*/**/*.test.js")
     },
     "root": __dirname
 };
 
-gulp.task("beautify", function () {
-    gulp.src(global.paths.all)
-        // .pipe(require("gulp-debug")())
-        .pipe(cached("beautifying"))
-        .pipe(esformatter(global.configs.esformatter))
-        .pipe(gulp.dest(global.paths.root));
+global.paths.all = [
+    global.paths.gulpfile,
+    global.paths.libs.files,
+    global.paths.tests.files
+];
+
+gulp.task("beautify", function (done) {
+    fs.readFile(global.paths.configs.esformatter, function (err, config) {
+        assert.ifError(err);
+
+        gulp.src(global.paths.all)
+            .pipe(cached("beautifying"))
+            .pipe(esformatter(JSON.parse(config.toString("utf8"))))
+            .pipe(gulp.dest(global.paths.root))
+            .on("end", done);
+    });
 });
 
 gulp.task("cover", function (done) {
     gulp.src(global.paths.libs.files)
         .pipe(istanbul())
         .on("end", function () {
-        gulp.src(global.paths.tests.files)
-            .pipe(mocha())
-            .pipe(istanbul.writeReports(global.paths.coverage.root))
+            gulp.src(global.paths.tests.files)
+                .pipe(mocha())
+                .pipe(istanbul.writeReports(global.paths.coverage.root))
+                .on("end", done);
+        });
+});
+
+gulp.task("lint", ["beautify"], function (done) {
+    fs.readFile(global.paths.configs.eslintrc, function (err, config) {
+        assert.ifError(err);
+
+        gulp.src(global.paths.all)
+            .pipe(eslint(JSON.parse(config.toString("utf8"))))
+            .pipe(eslint.format())
             .on("end", done);
     });
 });
 
-gulp.task("lint", function () {
-    gulp.src(global.paths.all)
-        .pipe(eslint(global.configs.eslintrc))
-        .pipe(eslint.format());
-});
+gulp.task("test", ["lint"], function (done) {
+    Error.stackTraceLimit = Infinity;
 
-gulp.task("test", function () {
-    gulp.src(global.paths.tests.files).pipe(mocha({
-        "reporter": "tap"
-    }));
+    gulp.src(global.paths.tests.files)
+        .pipe(mocha())
+        .on("end", done);
 });
 
 gulp.task("watch", function () {

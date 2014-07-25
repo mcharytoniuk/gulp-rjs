@@ -1,6 +1,6 @@
 /**
  * @license Copyright (c) 2014 Nicholas Kostelnik
- * @license Copyright (c) 2014 Polacks
+ * @license Copyright (c) 2014 smrtlabs
  * For licensing, see LICENSE
  */
 
@@ -30,7 +30,7 @@ OptimizerSettings.prototype.expect = function () {
         // ])
         "baseUrl": expect.string().normalize(path.normalize),
         "paths": expect.map(expect.string()).optional()
-    }).strict(true);
+    });
 };
 
 module.exports = OptimizerSettings;

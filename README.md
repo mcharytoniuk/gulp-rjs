@@ -34,6 +34,20 @@ gulp.src("app/scripts/*.js")
     .pipe(gulp.dest("dist/scripts"));
 ```
 
+If you want to use Almond, add `almond` dependency to your package.json and then use `name` configuration option:
+
+```JavaScript
+var rename = require("gulp-rename"),
+    rjs = require("gulp-r");
+
+gulp.src("app/scripts/*.js")
+    .pipe(rjs({
+        "baseUrl": "app/scripts",
+        "name": require.resolve("almond")
+    }))
+    .pipe(gulp.dest("dist/scripts"));
+```
+
 ## Status
 
 This fork is maintained independently from its origin.

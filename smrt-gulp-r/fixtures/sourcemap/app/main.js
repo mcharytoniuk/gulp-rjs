@@ -3,5 +3,5 @@
 define(function () {
     "use strict";
 
-    return ["b"];
+    return ["main"];
 });
