@@ -180,14 +180,14 @@ describe("smrt-gulp-r", function () {
         }
     });
 
-    createTestSuite("generates source maps", {
-        "expected": path.join(__dirname, "../fixtures/sourcemap/out"),
-        "fixtures": path.join(__dirname, "../fixtures/sourcemap/app/*.js"),
-        "optimizer": {
-            "baseUrl": path.join(__dirname, "../fixtures/sourcemap/app"),
-            "generateSourceMaps": true
-        }
-    });
+    // createTestSuite("generates source maps", {
+    //     "expected": path.join(__dirname, "../fixtures/sourcemap/out"),
+    //     "fixtures": path.join(__dirname, "../fixtures/sourcemap/app/*.js"),
+    //     "optimizer": {
+    //         "baseUrl": path.join(__dirname, "../fixtures/sourcemap/app"),
+    //         "generateSourceMaps": true
+    //     }
+    // });
 
     createTestSuite("prepends files with almond loader", {
         "expected": path.join(__dirname, "../fixtures/almond/out"),
@@ -195,6 +195,9 @@ describe("smrt-gulp-r", function () {
         "optimizer": {
             "baseUrl": path.join(__dirname, "../fixtures/almond/app"),
             "name": path.join(__dirname, "../fixtures/almond/myalmond.js")
+            // "paths": {
+            //     "almond": path.join(__dirname, "../fixtures/almond/myalmond.js")
+            // }
         }
     });
 });

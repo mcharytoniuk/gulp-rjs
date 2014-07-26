@@ -49,6 +49,7 @@ function handleNullStream(stream, file) {
  */
 function optimizeFile(file, encoding, options) {
     var fileOptions,
+        filePath,
         include = path.basename(file.path).replace(path.extname(file.path), ""),
         optimizeFileDeferred = Q.defer(),
         optimizeFilePromise = optimizeFileDeferred.promise;
@@ -74,7 +75,7 @@ function optimizeFile(file, encoding, options) {
     try {
         process.chdir(options.baseUrl);
     } catch (err) {
-        optimizeFileDeferred.reject(err);
+        errback(err);
 
         return optimizeFilePromise;
     }
