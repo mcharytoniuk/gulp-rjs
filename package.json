@@ -22,6 +22,7 @@
         "almond": "0.x",
         "cruks-lib-config": "2.x",
         "gulp-util": "3.x",
+        "lodash": "2.x",
         "q": "1.x",
         "requirejs": "2.1.x",
         "through2": "0.x"
@@ -29,7 +30,7 @@
     "devDependencies": {
         "chai": "1.9.x",
         "gulp": "3.x",
-        "gulp-cached": "0.x",
+        "gulp-cached": "1.x",
         "gulp-esformatter": "0.x",
         "gulp-eslint": "0.x",
         "gulp-istanbul": "0.x",
