@@ -1,7 +1,5 @@
 # gulp-r
 
-## Basic usage
-
 First, install `gulp-r` as a development dependency:
 
 ```shell
@@ -43,8 +41,7 @@ gulp.src("app/scripts/*.js")
 If you want to use Almond, add `almond` dependency to your package.json and then use `name` configuration option:
 
 ```JavaScript
-var rename = require("gulp-rename"),
-    rjs = require("gulp-r");
+var rjs = require("gulp-r");
 
 gulp.src("app/scripts/*.js")
     .pipe(rjs({
@@ -60,8 +57,7 @@ Use following options simultaneously (`generateSourceMaps`, `optimize`,
 `preserveLicenseComments`):
 
 ```JavaScript
-var rename = require("gulp-rename"),
-    rjs = require("gulp-r");
+var rjs = require("gulp-r");
 
 gulp.src("app/scripts/*.js")
     .pipe(rjs({
