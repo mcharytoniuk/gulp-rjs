@@ -24,7 +24,7 @@ var path = require("path"),
  * @returns {Promise} resolved if handled successfully, rejected otherwise
  */
 function handleFileStream(stream, file, encoding, options) {
-    var doOptimizeFile = _.curry(optimizeFile)(file, encoding, options);
+    var doOptimizeFile = _.curry(optimizeFile)(stream, file, encoding, options);
 
     return normalizeFileOptions(file, encoding, options).then(doOptimizeFile);
 }
@@ -56,11 +56,6 @@ function normalizeFileOptions(file, encoding, options) {
         normalizeFileOptionsDeferred = Q.defer(),
         normalizeFileOptionsPromise = normalizeFileOptionsDeferred.promise;
 
-    fileOptions.out = function (text, sourceMapText) {
-        // console.log(sourceMapText);
-        file.contents = new Buffer(text, encoding);
-    };
-
     if (fileOptions.name) {
         fileOptions.name = path.relative(fileOptions.baseUrl, fileOptions.name);
         fileOptions.include = include;
@@ -91,17 +86,26 @@ function normalizeStreamOptions(options) {
 }
 
 /**
+ * @param {*} stream through2 stream object
  * @param {*} file through2 file stream
  * @param {String} encoding file encoding
  * @param {smrt-gulp-r/OptimizerSettings} options valid optimizer options
  * @param {smrt-gulp-r/OptimizerSettings} fileOptions valid file options
  * @returns {Promise} resolved if optimized successfully, rejected otherwise
  */
-function optimizeFile(file, encoding, options, fileOptions) {
-    var optimizeFileDeferred = Q.defer(),
-        optimizeFilePromise = optimizeFileDeferred.promise;
+function optimizeFile(stream, file, encoding, options, fileOptions) {
+    var fileOptionsDeferred = Q.defer(),
+        fileOptionsPromise = fileOptionsDeferred.promise,
+        optimizeFileDeferred = Q.defer(),
+        optimizeFilePromise = optimizeFileDeferred.promise,
+        requirejsDeferred = Q.defer(),
+        requirejsPromise = requirejsDeferred.promise;
 
-    function errback(err) {
+    function fileOptionsErrback(err) {
+        fileOptionsDeferred.reject(err);
+    }
+
+    function optimizeFileErrback(err) {
         optimizeFileDeferred.reject(err);
     }
 
@@ -110,16 +114,63 @@ function optimizeFile(file, encoding, options, fileOptions) {
         // this prevents some edge case failures
         process.chdir(options.baseUrl);
     } catch (err) {
-        errback(err);
+        optimizeFileErrback(err);
 
         return optimizeFilePromise;
     }
 
+    fileOptions.out = function (text, sourceMapText) {
+        fileOptionsPromise = fileOptionsPromise.then(function (formattedText) {
+            file.contents = new Buffer(formattedText, encoding);
+
+            return file;
+        });
+
+        if (!sourceMapText) {
+            fileOptionsDeferred.resolve(text);
+
+            return;
+        }
+
+        storeSourceMap(stream, file, encoding, options, sourceMapText).then(function (sourceMapFile) {
+            text += "\n//# sourceMappingURL=" + path.basename(sourceMapFile.path);
+
+            stream.push(sourceMapFile);
+            fileOptionsDeferred.resolve(text);
+        }, fileOptionsErrback);
+    };
+
     requirejs.optimize(fileOptions, function () {
+        requirejsDeferred.resolve();
+    }, optimizeFileErrback);
+
+    Q.all([fileOptionsPromise, requirejsPromise]).then(function () {
         optimizeFileDeferred.resolve(file);
-    }, errback);
+    }, optimizeFileErrback);
 
     return optimizeFilePromise;
+}
+
+/**
+ * @param {*} stream through2 stream object
+ * @param {*} file through2 file stream
+ * @param {String} encoding file encoding
+ * @param {smrt-gulp-r/OptimizerSettings} options valid optimizer options
+ * @param {String} sourceMapText contents of generated source map
+ * @returns {Promise} resolved if optimized successfully, rejected otherwise
+ */
+function storeSourceMap(stream, file, encoding, options, sourceMapText) {
+    var storeSourceMapDeferred = Q.defer(),
+        storeSourceMapPromise = storeSourceMapDeferred.promise;
+
+    storeSourceMapDeferred.resolve(new gutil.File({
+        "base": path.dirname(file.path),
+        "contents": new Buffer(sourceMapText, encoding),
+        "cwd": process.cwd(),
+        "path": file.path + ".map"
+    }));
+
+    return storeSourceMapPromise;
 }
 
 module.exports = function (options) {

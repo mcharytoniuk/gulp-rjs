@@ -180,14 +180,16 @@ describe("smrt-gulp-r", function () {
         }
     });
 
-    // createTestSuite("generates source maps", {
-    //     "expected": path.join(__dirname, "../fixtures/sourcemap/out"),
-    //     "fixtures": path.join(__dirname, "../fixtures/sourcemap/app/*.js"),
-    //     "optimizer": {
-    //         "baseUrl": path.join(__dirname, "../fixtures/sourcemap/app"),
-    //         "generateSourceMaps": true
-    //     }
-    // });
+    createTestSuite("generates source maps", {
+        "expected": path.join(__dirname, "../fixtures/sourcemap/out"),
+        "fixtures": path.join(__dirname, "../fixtures/sourcemap/app/*.js"),
+        "optimizer": {
+            "baseUrl": path.join(__dirname, "../fixtures/sourcemap/app"),
+            "generateSourceMaps": true,
+            "optimize": "uglify2",
+            "preserveLicenseComments": false
+        }
+    });
 
     createTestSuite("prepends files with almond loader", {
         "expected": path.join(__dirname, "../fixtures/almond/out"),
