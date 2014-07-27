@@ -95,8 +95,6 @@ function normalizeStreamOptions(options) {
 function optimizeFile(stream, file, encoding, options, fileOptions) {
     var fileOptionsDeferred = Q.defer(),
         fileOptionsPromise = fileOptionsDeferred.promise,
-        optimizeFileDeferred = Q.defer(),
-        optimizeFilePromise = optimizeFileDeferred.promise,
         requirejsDeferred = Q.defer(),
         requirejsPromise = requirejsDeferred.promise;
 
@@ -104,8 +102,8 @@ function optimizeFile(stream, file, encoding, options, fileOptions) {
         fileOptionsDeferred.reject(err);
     }
 
-    function optimizeFileErrback(err) {
-        optimizeFileDeferred.reject(err);
+    function requirejsErrback(err) {
+        requirejsDeferred.reject(err);
     }
 
     try {
@@ -113,9 +111,9 @@ function optimizeFile(stream, file, encoding, options, fileOptions) {
         // this prevents some edge case failures
         process.chdir(options.baseUrl);
     } catch (err) {
-        optimizeFileErrback(err);
+        requirejsErrback(err);
 
-        return optimizeFilePromise;
+        return requirejsPromise;
     }
 
     fileOptions.out = function (text, sourceMapText) {
@@ -141,13 +139,11 @@ function optimizeFile(stream, file, encoding, options, fileOptions) {
 
     requirejs.optimize(fileOptions, function () {
         requirejsDeferred.resolve();
-    }, optimizeFileErrback);
+    }, requirejsErrback);
 
-    Q.all([fileOptionsPromise, requirejsPromise]).then(function () {
-        optimizeFileDeferred.resolve(file);
-    }, optimizeFileErrback);
-
-    return optimizeFilePromise;
+    return Q.all([fileOptionsPromise, requirejsPromise]).then(function () {
+        return file;
+    });
 }
 
 /**
