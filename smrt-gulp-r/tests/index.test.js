@@ -75,6 +75,9 @@ function createTestSuite(testSuiteName, options) {
 
         gulp.src(options.fixtures)
             .pipe(gulpr(options.optimizer))
+            // .on("error", function (err) {
+            //     console.error(err);
+            // })
             .pipe(through.obj(function (file, enc, callback) {
                 var actualResult = file.contents.toString(enc).trim(),
                     fileBaseName = path.basename(file.path);
@@ -202,4 +205,16 @@ describe("smrt-gulp-r", function () {
             // }
         }
     });
+
+    // createTestSuite("prepends files with almond loader", {
+    //     "expected": path.join(__dirname, "../fixtures/almond/out"),
+    //     "fixtures": path.join(__dirname, "../fixtures/almond/app/*.js"),
+    //     "optimizer": {
+    //         "baseUrl": path.join(__dirname, "../fixtures/almond/app"),
+    //         "name": "almond",
+    //         "paths": {
+    //             "almond": path.join(__dirname, "../fixtures/almond/myalmond.js")
+    //         }
+    //     }
+    // });
 });

@@ -11,7 +11,6 @@ var path = require("path"),
     gutil = require("gulp-util"),
     OptimizerSettings = require(path.join(__dirname, "/OptimizerSettings")),
     PLUGIN_NAME = "gulp-r",
-    PluginError = gutil.PluginError,
     Q = require("q"),
     requirejs = require("requirejs"),
     through = require("through2");
@@ -180,7 +179,11 @@ module.exports = function (options) {
         var that = this;
 
         function onError(err) {
-            callback(new PluginError(PLUGIN_NAME, err.message), file);
+            var pluginError = new gutil.PluginError(PLUGIN_NAME, err);
+
+            gutil.log(gutil.colors.cyan(PLUGIN_NAME), gutil.colors.white(err.message));
+
+            callback(pluginError, file);
         }
 
         function onSuccess(optimized) {
