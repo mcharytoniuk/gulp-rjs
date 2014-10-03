@@ -57,7 +57,6 @@ function normalizeFileOptions(file, encoding, options) {
 
     if (fileOptions.name) {
         fileOptions.name = path.relative(fileOptions.baseUrl, fileOptions.name);
-        fileOptions.include = include;
     } else {
         fileOptions.name = include;
     }
