@@ -16,12 +16,15 @@ var config = {},
     path = require("path"),
     pckg = require(path.join(__dirname, "package.json"));
 
-gulp.task("beautify", ["beautify." + pckg.name, "beautify.gulpfile"]);
+gulp.task("beautify", ["beautify." + pckg.main, "beautify.gulpfile"]);
 
-gulp.task("beautify." + pckg.name, ["config.esformatter"], function (done) {
-    gulp.src(path.join(__dirname, pckg.name, "**/*.js"))
+gulp.task("beautify." + pckg.main, ["config.esformatter"], function (done) {
+    gulp.src([
+        "!" + path.join(__dirname, pckg.main, "fixtures/*/out/*.js"),
+        path.join(__dirname, pckg.main, "**/*.js")
+    ])
         .pipe(esformatter(config.esformatter))
-        .pipe(gulp.dest(path.join(__dirname, pckg.name)))
+        .pipe(gulp.dest(path.join(__dirname, pckg.main)))
         .on("finish", done);
 });
 
@@ -57,7 +60,11 @@ gulp.task("config.eslintrc", function (done) {
 gulp.task("default", ["beautify", "lint", "test"]);
 
 gulp.task("lint", ["beautify", "config.eslintrc"], function (done) {
-    gulp.src([__filename, path.join(__dirname, pckg.name, "**/*.js")])
+    gulp.src([
+        "!" + path.join(__dirname, pckg.main, "fixtures/*/out/*.js"),
+        __filename,
+        path.join(__dirname, pckg.main, "**/*.js")
+    ])
         .pipe(eslint(config.eslintrc))
         .pipe(eslint.format())
         .on("end", done);
@@ -68,7 +75,7 @@ gulp.task("test", ["lint"], function (done) {
         process.env.PACKAGE_ROOT = __dirname;
     }
 
-    gulp.src(path.join(__dirname, pckg.name, "**/*.test.js"))
+    gulp.src(path.join(__dirname, pckg.main, "**/*.test.js"))
         .pipe(mocha({
             "bail": true,
             "reporter": "dot"
@@ -77,5 +84,5 @@ gulp.task("test", ["lint"], function (done) {
 });
 
 gulp.task("watch", function () {
-    gulp.watch(path.join(__dirname, pckg.name, "**/*.js"), ["default"]);
+    gulp.watch(path.join(__dirname, pckg.main, "**/*.js"), ["default"]);
 });
