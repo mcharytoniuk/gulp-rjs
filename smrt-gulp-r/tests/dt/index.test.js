@@ -12,7 +12,7 @@ var assert = require("chai").assert,
     path = require("path"),
     FS = require("q-io/fs"),
     gulp = require("gulp"),
-    gulpr = require(path.join(global.paths.root, "/smrt-gulp-r")),
+    gulpr = require(path.join(process.env.PACKAGE_ROOT, "/smrt-gulp-r")),
     mktemp = require("mktemp"),
     rimraf = require("rimraf"),
     Q = require("q"),
@@ -49,9 +49,11 @@ function createTestSuite(testSuiteName, options) {
     var destinationDirectory,
         expectedResults;
 
-    after(function (done) {
+    function onAfter(done) {
         rimraf(destinationDirectory, done);
-    });
+    }
+
+    after(onAfter);
 
     before(function (done) {
         var listDirectoryPromise,
@@ -65,9 +67,16 @@ function createTestSuite(testSuiteName, options) {
             expectedResults = expectedFiles;
         });
 
-        Q.all([listDirectoryPromise, temporaryDirectoryPromise]).then(function () {
-            done();
-        });
+        Q
+            .all([listDirectoryPromise, temporaryDirectoryPromise])
+            .then(function () {
+                done();
+            })
+            .catch(function (err) {
+                onAfter(function () {
+                    done(err);
+                });
+            });
     });
 
     it(testSuiteName, function (done) {
@@ -89,7 +98,7 @@ function createTestSuite(testSuiteName, options) {
                 callback();
             }))
             .pipe(gulp.dest(destinationDirectory))
-            .on("end", function () {
+            .on("finish", function () {
                 validateFiles(expectedResults, actualResults).then(function () {
                     done();
                 }, done);
@@ -176,18 +185,18 @@ function validateFiles(expectedResults, actualResults) {
 
 describe("smrt-gulp-r", function () {
     createTestSuite("concatenates files with gulp", {
-        "expected": path.join(__dirname, "../fixtures/basic/out"),
-        "fixtures": path.join(__dirname, "../fixtures/basic/app/*.js"),
+        "expected": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/basic/out"),
+        "fixtures": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/basic/app/*.js"),
         "optimizer": {
-            "baseUrl": path.join(__dirname, "../fixtures/basic/app")
+            "baseUrl": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/basic/app")
         }
     });
 
     createTestSuite("generates source maps", {
-        "expected": path.join(__dirname, "../fixtures/sourcemap/out"),
-        "fixtures": path.join(__dirname, "../fixtures/sourcemap/app/*.js"),
+        "expected": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/sourcemap/out"),
+        "fixtures": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/sourcemap/app/*.js"),
         "optimizer": {
-            "baseUrl": path.join(__dirname, "../fixtures/sourcemap/app"),
+            "baseUrl": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/sourcemap/app"),
             "generateSourceMaps": true,
             "optimize": "uglify2",
             "preserveLicenseComments": false
@@ -195,25 +204,25 @@ describe("smrt-gulp-r", function () {
     });
 
     createTestSuite("prepends files with almond loader", {
-        "expected": path.join(__dirname, "../fixtures/almond/out"),
-        "fixtures": path.join(__dirname, "../fixtures/almond/app/*.js"),
+        "expected": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/out"),
+        "fixtures": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/app/*.js"),
         "optimizer": {
-            "baseUrl": path.join(__dirname, "../fixtures/almond/app"),
-            "name": path.join(__dirname, "../fixtures/almond/myalmond.js")
+            "baseUrl": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/app"),
+            "name": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/myalmond.js")
             // "paths": {
-            //     "almond": path.join(__dirname, "../fixtures/almond/myalmond.js")
+            //     "almond": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/myalmond.js")
             // }
         }
     });
 
     // createTestSuite("prepends files with almond loader", {
-    //     "expected": path.join(__dirname, "../fixtures/almond/out"),
-    //     "fixtures": path.join(__dirname, "../fixtures/almond/app/*.js"),
+    //     "expected": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/out"),
+    //     "fixtures": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/app/*.js"),
     //     "optimizer": {
-    //         "baseUrl": path.join(__dirname, "../fixtures/almond/app"),
+    //         "baseUrl": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/app"),
     //         "name": "almond",
     //         "paths": {
-    //             "almond": path.join(__dirname, "../fixtures/almond/myalmond.js")
+    //             "almond": path.join(process.env.PACKAGE_ROOT, "smrt-gulp-r/fixtures/almond/myalmond.js")
     //         }
     //     }
     // });
