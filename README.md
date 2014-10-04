@@ -75,6 +75,6 @@ This fork is maintained independently from its origin.
 
 ---
 
-[![Build Status](https://travis-ci.org/smrtlabs/smrt-gulp-r.svg?branch=master)](https://travis-ci.org/smrtlabs/smrt-gulp-r)
-[![Code Climate](https://codeclimate.com/github/smrtlabs/smrt-gulp-r.png)](https://codeclimate.com/github/smrtlabs/smrt-gulp-r)
-[![Dependency Status](https://david-dm.org/smrtlabs/smrt-gulp-r.svg)](https://david-dm.org/smrtlabs/smrt-gulp-r)
+[![Build Status](http://img.shields.io/travis/smrtlabs/smrt-gulp-r.svg?style=flat)](https://travis-ci.org/smrtlabs/smrt-gulp-r)
+[![Code Climate](http://img.shields.io/codeclimate/github/smrtlabs/smrt-gulp-r.svg?style=flat)](https://codeclimate.com/github/smrtlabs/smrt-gulp-r)
+[![Dependency Status](http://img.shields.io/david/smrtlabs/smrt-gulp-r.svg?style=flat)](https://david-dm.org/smrtlabs/smrt-gulp-r)
