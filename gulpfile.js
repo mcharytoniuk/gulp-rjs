@@ -1,91 +1,81 @@
 /**
- * @license Copyright (c) 2014, smrtlabs
+ * @license Copyright (c) 2014, Cruks
  * For licensing, see LICENSE
  */
 
 "use strict";
 
-var assert = require("chai").assert,
-    cached = require("gulp-cached"),
+/*eslint no-mixed-requires: 0 */
+
+var config = {},
     esformatter = require("gulp-esformatter"),
     eslint = require("gulp-eslint"),
     fs = require("fs"),
     gulp = require("gulp"),
-    istanbul = require("gulp-istanbul"),
     mocha = require("gulp-mocha"),
-    path = require("path");
+    path = require("path"),
+    pckg = require(path.join(__dirname, "package.json"));
 
-/*eslint no-sync: 0 */
+gulp.task("beautify", ["beautify." + pckg.name, "beautify.gulpfile"]);
 
-global.paths = {
-    "configs": {
-        "esformatter": path.join(__dirname, ".esformatter"),
-        "eslintrc": path.join(__dirname, ".eslintrc")
-    },
-    "coverage": {
-        "root": path.join(__dirname, "node_coverage")
-    },
-    "gulpfile": __filename,
-    "libs": {
-        "files": path.join(__dirname, "smrt-*/{*.js,tests/**/*.js}")
-    },
-    "tests": {
-        "files": path.join(__dirname, "smrt-*/**/*.test.js")
-    },
-    "root": __dirname
-};
+gulp.task("beautify." + pckg.name, ["config.esformatter"], function (done) {
+    gulp.src(path.join(__dirname, pckg.name, "**/*.js"))
+        .pipe(esformatter(config.esformatter))
+        .pipe(gulp.dest(path.join(__dirname, pckg.name)))
+        .on("finish", done);
+});
 
-global.paths.all = [
-    global.paths.gulpfile,
-    global.paths.libs.files,
-    global.paths.tests.files
-];
+gulp.task("beautify.gulpfile", ["config.esformatter"], function (done) {
+    gulp.src(__filename)
+        .pipe(esformatter(config.esformatter))
+        .pipe(gulp.dest(__dirname))
+        .on("finish", done);
+});
 
-gulp.task("beautify", function (done) {
-    fs.readFile(global.paths.configs.esformatter, function (err, config) {
-        assert.ifError(err);
-
-        gulp.src(global.paths.all)
-            .pipe(cached("beautifying"))
-            .pipe(esformatter(JSON.parse(config.toString("utf8"))))
-            .pipe(gulp.dest(global.paths.root))
-            .on("end", done);
+gulp.task("config.esformatter", function (done) {
+    fs.readFile(path.join(__dirname, ".esformatter"), function (err, config) {
+        if (err) {
+            done(err);
+        } else {
+            config.esformatter = JSON.parse(config.toString("utf8"));
+            done();
+        }
     });
 });
 
-gulp.task("cover", function (done) {
-    gulp.src(global.paths.libs.files)
-        .pipe(istanbul())
-        .on("end", function () {
-            gulp.src(global.paths.tests.files)
-                .pipe(mocha())
-                .pipe(istanbul.writeReports(global.paths.coverage.root))
-                .on("end", done);
-        });
-});
-
-gulp.task("lint", ["beautify"], function (done) {
-    fs.readFile(global.paths.configs.eslintrc, function (err, config) {
-        assert.ifError(err);
-
-        gulp.src(global.paths.all)
-            .pipe(eslint(JSON.parse(config.toString("utf8"))))
-            .pipe(eslint.format())
-            .on("end", done);
+gulp.task("config.eslintrc", function (done) {
+    fs.readFile(path.join(__dirname, ".eslintrc"), function (err, config) {
+        if (err) {
+            done(err);
+        } else {
+            config.eslintrc = JSON.parse(config.toString("utf8"));
+            done();
+        }
     });
-});
-
-gulp.task("test", ["lint"], function (done) {
-    Error.stackTraceLimit = Infinity;
-
-    gulp.src(global.paths.tests.files)
-        .pipe(mocha())
-        .on("end", done);
-});
-
-gulp.task("watch", function () {
-    gulp.src(global.paths.all).pipe(cached("beautifying"));
-    gulp.watch(global.paths.all, ["default"]);
 });
 
 gulp.task("default", ["beautify", "lint", "test"]);
+
+gulp.task("lint", ["beautify", "config.eslintrc"], function (done) {
+    gulp.src([__filename, path.join(__dirname, pckg.name, "**/*.js")])
+        .pipe(eslint(config.eslintrc))
+        .pipe(eslint.format())
+        .on("end", done);
+});
+
+gulp.task("test", ["lint"], function (done) {
+    if (!process.env.PACKAGE_ROOT) {
+        process.env.PACKAGE_ROOT = __dirname;
+    }
+
+    gulp.src(path.join(__dirname, pckg.name, "**/*.test.js"))
+        .pipe(mocha({
+            "bail": true,
+            "reporter": "dot"
+        }))
+        .on("finish", done);
+});
+
+gulp.task("watch", function () {
+    gulp.watch(path.join(__dirname, pckg.name, "**/*.js"), ["default"]);
+});
