@@ -55,11 +55,6 @@ function normalizeFileOptions(file, encoding, options) {
         normalizeFileOptionsDeferred = Q.defer(),
         normalizeFileOptionsPromise = normalizeFileOptionsDeferred.promise;
 
-    if (fileOptions.name) {
-        fileOptions.name = path.relative(fileOptions.baseUrl, fileOptions.name);
-    } else {
-        fileOptions.name = include;
-    }
 
     normalizeFileOptionsDeferred.resolve(fileOptions);
 
